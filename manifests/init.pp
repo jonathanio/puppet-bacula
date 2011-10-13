@@ -41,7 +41,7 @@ class bacula {
 
   # Make sure that the backup day is valid
   $safe_backup_onday = $bacula_backup_onday ? {
-    /^([Mm]on|[Tt]ues|[Ww]ednes|[Tt]hurs|[Ff]ri|[Ss]atur|[Ss]un)day$/ => $bacula_backup_day,
+    /^([Mm]on|[Tt]ues|[Ww]ednes|[Tt]hurs|[Ff]ri|[Ss]atur|[Ss]un)day$/ => $bacula_backup_onday,
     default                                                           => 'Saturday'
   }
 
