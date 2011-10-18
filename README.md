@@ -121,6 +121,7 @@ DEFAULTS
 --------
 
  * A server will be have a full backup on Saturday, of which the first of the month will be a *Full* backup and the other Saturday's being *Differential* (only changes since the last Full or Differential Backup). All mid-week backups will be *Incremental*.
+ * In the event of their being a slow- or long-running job, the Director has duplicate handling logic which will always ensure that the most imporant version of the Job (Full > Differental > Incremental) is run (killing a currently running job if required), while for jobs of the same importance, the currently running one is given priority, or if they are both queued, the newest version is kept.
  * All *Incremental* backups will be made at *20:00*, with *Full* backups starting at *18:30* (or *15:30* on Saturday or Sunday).
  * All servers will *not* have their '/home' directory backed up. The assumption is that this is mounted via NFS from a central location and therefore you will use `$bacula_backup_dohome` on the NFS server to back this up as required.
  * The default `FileSet` is as follows:
@@ -154,7 +155,7 @@ NOTES
 =====
 
  * I haven't created an environment variable to configure the location of the storage as it's not managed by the `bacula::storage` class, but by the `bacula` class - effectively each File Daemon creates it's own location to be added onto the Storage Daemon as part of the resource exporting. This is required so that we create individual `Device`'s for each host so that it will support concurrent streams of data. So long as we only have a single `Device` on a Storage Daemon we can only support a single stream. By fixing it in the code it keeps out issues of changes mid-installation. All Devices will created under `/mnt/bacula/${FQDN}`, so mount your backup file space as `/mnt/bacula` on all Storage Nodes.
- * This hasn't yet been tested extensivley (at this point it only has only completed a few successful first-full runs). I will monitor it over the coming weeks and months to make sure that its behaving as I would expect and make any changes required.
+ * Although this code is running operationally, it is still very new and it's only been running for a week or so. I will continue to monitor it over the coming weeks and months to make sure that its behaving as I would expect and make any changes required.
  * There is no requirement to have separate Director and Storage Daemon nodes. This module is perfectly happy with having both on the same box. The only restriction is that you cannot install the File Deamon (`include bacula`) on the same box that runs the Director (`include bacula::director`). The Director class installs it's own copy of the File Daemon to manage the backing up of Catalog and this will fail with the `Package['bacula-fd']` having already been defined.
  * Finally, across a Puppet network, the hostnames (for FQDN's) of the Directors, and Storage Daemons must be unique. You cannot at this time have 'director.bacula.com' and 'director.bacula.net' as they will be both processed as just 'director' in parts of the configuration. If there is a pressing need for full FQDN's across all parts of the configuration I will make the changes, but I don't see the need for it at the moment.
 
