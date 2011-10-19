@@ -48,7 +48,7 @@ class bacula::storage {
       group   => 'bacula',
       content => '# DO NOT EDIT - Managed by Puppet - DO NOT REMOVE',
       require => File['/etc/bacula/bacula-sd.d'];
-   ['/mnt/bacula', '/mnt/bacula/unknown']:
+   ['/mnt/bacula', '/mnt/bacula/default']:
       ensure  => 'directory',
       owner   => 'bacula',
       group   => 'tape',
