@@ -105,4 +105,18 @@ class bacula {
       notify  => Service['bacula-fd'],
       require => Package['bacula-fd'];
   }
+
+  # If TLS has been enabled, fetch the certifiate we need to secure the
+  # connection to and from the File Daemon
+  if ($safe_tls_enable) {
+    file {
+      '/etc/bacula/bacula-fd.pem':
+        ensure  => 'present',
+        source  => "puppet://$server/bacula/$bacula_tls_filedaemon"
+        owner   => 'bacula',
+        group   => 'bacula',
+        mode    => '0400',
+        require => [ Package['bacula-fd'], File['/etc/bacula/ca.pem'] ];
+    }
+  }
 }

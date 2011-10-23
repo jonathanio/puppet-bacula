@@ -39,7 +39,7 @@ class bacula::director inherits bacula::config {
       content => template('bacula/bacula-dir.conf'),
       notify  => Service['bacula-director'],
       require => Package['bacula-director-sqlite3'];
-    '/etc/bacula/bacula-dir.d':
+    '/etc/bacula/bacula-dir.d'
       ensure  => 'directory',
       owner   => 'bacula',
       group   => 'bacula',
@@ -61,6 +61,27 @@ class bacula::director inherits bacula::config {
       content => template('bacula/bacula-fd.conf'),
       notify  => Service['bacula-fd'],
       require => Package['bacula-fd'];
+  }
+
+  # If TLS has been enabled, fetch the certifiate we need to secure the
+  # connection to and from the Director and the File Daemon on it
+  if ($safe_tls_enable) {
+    file {
+      '/etc/bacula/bacula-dir.pem':
+        ensure  => 'present',
+        source  => "puppet://$server/bacula/$bacula_tls_director"
+        owner   => 'bacula',
+        group   => 'bacula',
+        mode    => '0400',
+        require => [ Package['bacula-director-sqlite3'], File['/etc/bacula/ca.pem'] ];
+      '/etc/bacula/bacula-fd.pem':
+        ensure  => 'present',
+        source  => "puppet://$server/bacula/$bacula_tls_filedaemon"
+        owner   => 'bacula',
+        group   => 'bacula',
+        mode    => '0400',
+        require => [ Package['bacula-fd'], File['/etc/bacula/ca.pem'] ];
+    }
   }
 
   # Register the Service so we can manage it through Puppet

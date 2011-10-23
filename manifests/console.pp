@@ -28,4 +28,19 @@ class bacula::console {
       content => template('bacula/bconsole.conf'),
       require => Package['bacula-console'];
   }
+
+  # If TLS has been enabled, fetch the certifiate we need to secure the
+  # connection from Bacula Console (in this case, it's mainly for
+  # validation between the Console & the Director than securing)
+  if ($safe_tls_enable) {
+    file {
+      '/etc/bacula/bconsole.pem':
+        ensure  => 'present',
+        source  => "puppet://$server/bacula/$bacula_tls_console"
+        owner   => 'bacula',
+        group   => 'bacula',
+        mode    => '0400',
+        require => [ Package['bacula-console'], File['/etc/bacula/ca.pem'] ];
+    }
+  }
 }

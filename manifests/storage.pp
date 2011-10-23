@@ -55,6 +55,20 @@ class bacula::storage {
       mode    => '0750';
   }
 
+  # If TLS has been enabled, fetch the certifiate we need to secure the
+  # connection to and from the Storage Daemon
+  if ($safe_tls_enable) {
+    file {
+      '/etc/bacula/bacula-sd.pem':
+        ensure  => 'present',
+        source  => "puppet://$server/bacula/$bacula_tls_storagedaemon"
+        owner   => 'bacula',
+        group   => 'bacula',
+        mode    => '0400',
+        require => [ Package['bacula-sd-sqlite3'], File['/etc/bacula/ca.pem'] ];
+    }
+  }
+
   # Register the Service so we can manage it through Puppet
   service {
     'bacula-sd':
